@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - Backupi Admin Panel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            direction: rtl;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #000 0%, #1a1a1a 100%);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            border-left: 3px solid #ff6600;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+            background: linear-gradient(135deg, #ff6600 0%, #ffaa00 100%);
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 25px;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-right: 3px solid transparent;
+            margin: 2px 0;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: rgba(255, 102, 0, 0.15);
+            border-right-color: #ff6600;
+            transform: translateX(-8px);
+            color: #ff6600;
+        }
+
+        .menu-item i {
+            margin-left: 15px;
+            font-size: 18px;
+            width: 25px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-right: 280px;
+            padding: 20px;
+            background: #1a1a1a;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #ff6600;
+            font-size: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6600 0%, #ffaa00 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 102, 0, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: #fff;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            border: 1px solid #333;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #ff6600;
+            box-shadow: 0 10px 30px rgba(255, 102, 0, 0.2);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6600, #ffaa00);
+        }
+
+        .stat-card i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ff6600;
+        }
+
+        .stat-card h3 {
+            font-size: 36px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: #ccc;
+            font-size: 16px;
+        }
+
+        /* Tables */
+        .table-container {
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-header h3 {
+            color: #ff6600;
+            font-size: 24px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th,
+        .table td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid #333;
+        }
+
+        .table th {
+            background: linear-gradient(135deg, #ff6600 0%, #ffaa00 100%);
+            color: #fff;
+            font-weight: 600;
+            border: none;
+        }
+
+        .table tbody tr {
+            transition: background 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(255, 102, 0, 0.1);
+        }
+
+        .table tbody td {
+            color: #ccc;
+        }
+
+        /* Forms */
+        .form-container {
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ff6600;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #1a1a1a;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #ff6600;
+            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.2);
+        }
+
+        .form-control::placeholder {
+            color: #666;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            margin: 3% auto;
+            padding: 35px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            border: 1px solid #333;
+            animation: modalSlideIn 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .modal-header h2 {
+            color: #ff6600;
+            font-size: 24px;
+        }
+
+        .close {
+            color: #ccc;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ff6600;
+        }
+
+        /* Status badges */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .badge-warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .badge-danger {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .badge-info {
+            background: #17a2b8;
+            color: #fff;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid;
+            display: none;
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.1);
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .alert-error {
+            background: rgba(220, 53, 69, 0.1);
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+
+        /* Live Website Generator */
+        .website-preview {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        /* Icon Grid */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .icon-option {
+            padding: 15px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #1a1a1a;
+        }
+
+        .icon-option:hover,
+        .icon-option.selected {
+            border-color: #ff6600;
+            background: rgba(255, 102, 0, 0.1);
+        }
+
+        .icon-option i {
+            font-size: 24px;
+            color: #ff6600;
+        }
+
+        /* Color Picker */
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-picker input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            
+            .main-content {
+                margin-right: 0;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>🔥 Backupi Admin</h2>
+                <p>لوحة التحكم الشاملة</p>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-item active" onclick="showSection('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة القيادة</span>
+                </div>
+                <div class="menu-item" onclick="showSection('site-settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>إعدادات الموقع</span>
+                </div>
+                <div class="menu-item" onclick="showSection('hero-section')">
+                    <i class="fas fa-star"></i>
+                    <span>قسم البطل</span>
+                </div>
+                <div class="menu-item" onclick="showSection('products')">
+                    <i class="fas fa-box"></i>
+                    <span>إدارة المنتجات</span>
+                </div>
+                <div class="menu-item" onclick="showSection('orders')">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>إدارة الطلبيات</span>
+                </div>
+                <div class="menu-item" onclick="showSection('users')">
+                    <i class="fas fa-users"></i>
+                    <span>إدارة المستخدمين</span>
+                </div>
+                <div class="menu-item" onclick="showSection('design')">
+                    <i class="fas fa-palette"></i>
+                    <span>تخصيص التصميم</span>
+                </div>
+                <div class="menu-item" onclick="generateWebsite()">
+                    <i class="fas fa-code"></i>
+                    <span>إنشاء الموقع</span>
+                </div>
+                <div class="menu-item" onclick="previewWebsite()">
+                    <i class="fas fa-eye"></i>
+                    <span>معاينة الموقع</span>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1 id="page-title">لوحة القيادة</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="saveAllSettings()">
+                        <i class="fas fa-save"></i>
+                        حفظ جميع التغييرات
+                    </button>
+                    <button class="btn btn-success" onclick="generateWebsite()">
+                        <i class="fas fa-rocket"></i>
+                        إنشاء الموقع
+                    </button>
+                </div>
+            </div>
+
+            <!-- Success/Error Messages -->
+            <div id="alerts-container"></div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-box"></i>
+                        <h3 id="total-products">8</h3>
+                        <p>إجمالي المنتجات</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3 id="total-orders">142</h3>
+                        <p>إجمالي الطلبيات</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <h3 id="total-users">1,847</h3>
+                        <p>إجمالي المستخدمين</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-dollar-sign"></i>
+                        <h3 id="total-revenue">$23,650</h3>
+                        <p>إجمالي الإيرادات</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>أحدث الطلبيات</h3>
+                        <button class="btn btn-primary" onclick="showSection('orders')">
+                            عرض الكل
+                        </button>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>رقم الطلبية</th>
+                                <th>اسم العميل</th>
+                                <th>المنتج</th>
+                                <th>المبلغ</th>
+                                <th>الحالة</th>
+                                <th>التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#1001</td>
+                                <td>أحمد محمد</td>
+                                <td>Facebook Ads Account</td>
+                                <td>$50</td>
+                                <td><span class="badge badge-success">مكتملة</span></td>
+                                <td>2025-08-13</td>
+                            </tr>
+                            <tr>
+                                <td>#1002</td>
+                                <td>فاطمة عبدالله</td>
+                                <td>Google Ads Account</td>
+                                <td>$75</td>
+                                <td><span class="badge badge-warning">قيد المعالجة</span></td>
+                                <td>2025-08-12</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Site Settings Section -->
+            <div id="site-settings" class="content-section">
+                <div class="form-container">
+                    <div class="table-header">
+                        <h3>إعدادات الموقع العامة</h3>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>اسم الموقع</label>
+                            <input type="text" class="form-control" id="site-name" value="Backupi.ma" onchange="updateSetting('siteName', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>شعار الموقع</label>
+                            <input type="text" class="form-control" id="site-logo" value="🔥 Backupi" onchange="updateSetting('siteLogo', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>وصف الموقع</label>
+                            <textarea class="form-control" id="site-description" rows="3" onchange="updateSetting('siteDescription', this.value)">Buy Facebook Ads Accounts, Google, TikTok, Snapchat & Canva Pro</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="site-email" value="customer@backupi.ma" onchange="updateSetting('siteEmail', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم الهاتف</label>
+                            <input type="tel" class="form-control" id="site-phone" value="+212-XXX-XXXXX" onchange="updateSetting('sitePhone', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>رابط التلجرام</label>
+                            <input type="url" class="form-control" id="telegram-link" value="https://t.me/ProAdsFB" onchange="updateSetting('telegramLink', this.value)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Section -->
+            <div id="hero-section" class="content-section">
+                <div class="form-container">
+                    <div class="table-header">
+                        <h3>تحرير قسم البطل (Hero Section)</h3>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>العنوان الرئيسي</label>
+                            <textarea class="form-control" id="hero-title" rows="3" onchange="updateSetting('heroTitle', this.value)">Buy Facebook Ads Accounts, Google, TikTok, Snapchat & Canva Pro | Backupi.ma</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>العنوان الفرعي</label>
+                            <input type="text" class="form-control" id="hero-subtitle" value="Trusted Google Ads Accounts Available Now" onchange="updateSetting('heroSubtitle', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>الوصف</label>
+                            <textarea class="form-control" id="hero-description" rows="3" onchange="updateSetting('heroDescription', this.value)">Get reliable ad accounts for Facebook, Google, TikTok, Snapchat and Canva Pro.</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>نص الزر</label>
+                            <input type="text" class="form-control" id="hero-button-text" value="🔥 Browse Our Services" onchange="updateSetting('heroButtonText', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>نص الضمان</label>
+                            <input type="text" class="form-control" id="guarantee-text" value="💰 100% Risk-Free – 14-Day Money Back Guarantee" onchange="updateSetting('guaranteeText', this.value)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div id="products" class="content-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>إدارة المنتجات</h3>
+                        <button class="btn btn-primary" onclick="addProduct()">
+                            <i class="fas fa-plus"></i>
+                            إضافة منتج جديد
+                        </button>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>الأيقونة</th>
+                                <th>اسم المنتج</th>
+                                <th>الوصف</th>
+                                <th>السعر</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table">
+                            <!-- سيتم ملء المنتجات هنا -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="orders" class="content-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>إدارة الطلبيات</h3>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>رقم الطلبية</th>
+                                <th>اسم العميل</th>
+                                <th>المنتج</th>
+                                <th>المبلغ</th>
+                                <th>الحالة</th>
+                                <th>التاريخ</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table">
+                            <!-- سيتم ملء الطلبيات هنا -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div id="users" class="content-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>إدارة المستخدمين</h3>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>البريد الإلكتروني</th>
+                                <th>تاريخ التسجيل</th>
+                                <th>إجمالي الطلبيات</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table">
+                            <!-- سيتم ملء المستخدمين هنا -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Design Section -->
+            <div id="design" class="content-section">
+                <div class="form-container">
+                    <div class="table-header">
+                        <h3>تخصيص التصميم</h3>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>اللون الأساسي</label>
+                            <div class="color-picker">
+                                <input type="color" id="primary-color" value="#ff6600" onchange="updateSetting('primaryColor', this.value)">
+                                <input type="text" class="form-control" value="#ff6600" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>اللون الثانوي</label>
+                            <div class="color-picker">
+                                <input type="color" id="secondary-color" value="#ffaa00" onchange="updateSetting('secondaryColor', this.value)">
+                                <input type="text" class="form-control" value="#ffaa00" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>لون الخلفية</label>
+                            <div class="color-picker">
+                                <input type="color" id="background-color" value="#000000" onchange="updateSetting('backgroundColor', this.value)">
+                                <input type="text" class="form-control" value="#000000" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>إضافة منتج جديد</h2>
+                <span class="close" onclick="hideModal('addProductModal')">&times;</span>
+            </div>
+            <form id="addProductForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>اسم المنتج</label>
+                        <input type="text" class="form-control" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>اختر الأيقونة</label>
+                        <input type="text" class="form-control" id="product-icon" value="fab fa-facebook" readonly>
+                        <div class="icon-grid">
+                            <div class="icon-option selected" onclick="selectIcon('fab fa-facebook', this)">
+                                <i class="fab fa-facebook"></i>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fab fa-google', this)">
+                                <i class="fab fa-google"></i>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fab fa-tiktok', this)">
+                                <i class="fab fa-tiktok"></i>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fab fa-snapchat', this)">
+                                <i class="fab fa-snapchat"></i>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fab fa-instagram', this)">
+                                <i class="fab fa-instagram"></i>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fab fa-youtube', this)">
+                                <i class="fab fa-youtube"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>وصف المنتج</label>
+                        <textarea class="form-control" id="product-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>السعر ($)</label>
+                        <input type="number" class="form-control" id="product-price" step="1" required>
+                    </div>
+                </div>
+                <div style="margin-top: 25px; text-align: center;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-plus"></i>
+                        إضافة المنتج
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="hideModal('addProductModal')">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Website Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content" style="max-width: 95%; max-height: 95%;">
+            <div class="modal-header">
+                <h2>معاينة الموقع المُنشأ</h2>
+                <span class="close" onclick="hideModal('previewModal')">&times;</span>
+            </div>
+            <div class="website-preview">
+                <div class="preview-header">
+                    <h4>الموقع الجاهز للنشر</h4>
+                    <div>
+                        <button class="btn btn-primary" onclick="downloadWebsite()">
+                            <i class="fas fa-download"></i>
+                            تحميل الموقع
+                        </button>
+                        <button class="btn btn-success" onclick="copyWebsiteCode()">
+                            <i class="fas fa-copy"></i>
+                            نسخ الكود
+                        </button>
+                    </div>
+                </div>
+                <iframe class="preview-frame" id="preview-frame" src="about:blank"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Website Settings Storage
+        let websiteSettings = {
+            siteName: 'Backupi.ma',
+            siteLogo: '🔥 Backupi',
+            siteDescription: 'Buy Facebook Ads Accounts, Google, TikTok, Snapchat & Canva Pro',
+            siteEmail: 'customer@backupi.ma',
+            sitePhone: '+212-XXX-XXXXX',
+            telegramLink: 'https://t.me/ProAdsFB',
+            whatsappLink: '+212XXXXXXXXX',
+            heroTitle: 'Buy Facebook Ads Accounts, Google, TikTok, Snapchat & Canva Pro | Backupi.ma',
+            heroSubtitle: 'Trusted Google Ads Accounts Available Now',
+            heroDescription: 'Get reliable ad accounts for Facebook, Google, TikTok, Snapchat and Canva Pro.',
+            heroButtonText: '🔥 Browse Our Services',
+            guaranteeText: '💰 100% Risk-Free – 14-Day Money Back Guarantee',
+            primaryColor: '#ff6600',
+            secondaryColor: '#ffaa00',
+            backgroundColor: '#000000'
+        };
+
+        // Products Data
+        let products = [
+            {id: 1, name: 'Facebook Ads Account', icon: 'fab fa-facebook', description: 'High-quality Facebook advertising accounts', price: 50},
+            {id: 2, name: 'Google Ads Account', icon: 'fab fa-google', description: 'Professional Google advertising accounts', price: 75},
+            {id: 3, name: 'TikTok Ads Account', icon: 'fab fa-tiktok', description: 'Premium TikTok advertising accounts', price: 60},
+            {id: 4, name: 'Snapchat Ads Account', icon: 'fab fa-snapchat', description: 'Verified Snapchat advertising accounts', price: 55}
+        ];
+
+        // Orders Data
+        let orders = [
+            {id: 1001, customer: 'أحمد محمد', email: 'ahmed@example.com', product: 'Facebook Ads Account', amount: 50, status: 'completed', date: '2025-08-13'},
+            {id: 1002, customer: 'فاطمة عبدالله', email: 'fatima@example.com', product: 'Google Ads Account', amount: 75, status: 'processing', date: '2025-08-12'},
+            {id: 1003, customer: 'محمد عبدالرحمن', email: 'mohamed@example.com', product: 'TikTok Ads Account', amount: 60, status: 'pending', date: '2025-08-11'}
+        ];
+
+        // Users Data
+        let users = [
+            {id: 1, name: 'أحمد محمد', email: 'ahmed@example.com', joined: '2025-08-01', totalOrders: 3},
+            {id: 2, name: 'فاطمة عبدالله', email: 'fatima@example.com', joined: '2025-08-02', totalOrders: 1},
+            {id: 3, name: 'محمد عبدالرحمن', email: 'mohamed@example.com', joined: '2025-08-03', totalOrders: 2}
+        ];
+
+        // Navigation Functions
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update active menu item
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update page title
+            const titles = {
+                'dashboard': 'لوحة القيادة',
+                'site-settings': 'إعدادات الموقع',
+                'hero-section': 'قسم البطل',
+                'products': 'إدارة المنتجات',
+                'orders': 'إدارة الطلبيات',
+                'users': 'إدارة المستخدمين',
+                'design': 'تخصيص التصميم'
+            };
+            document.getElementById('page-title').textContent = titles[sectionId];
+
+            // Load section data
+            if (sectionId === 'products') loadProducts();
+            else if (sectionId === 'orders') loadOrders();
+            else if (sectionId === 'users') loadUsers();
+        }
+
+        // Settings Update Function
+        function updateSetting(key, value) {
+            websiteSettings[key] = value;
+            showAlert('تم حفظ الإعداد بنجاح!', 'success');
+            
+            // Update color picker display
+            if (key === 'primaryColor') {
+                document.querySelector('#primary-color').nextElementSibling.value = value;
+            } else if (key === 'secondaryColor') {
+                document.querySelector('#secondary-color').nextElementSibling.value = value;
+            } else if (key === 'backgroundColor') {
+                document.querySelector('#background-color').nextElementSibling.value = value;
+            }
+        }
+
+        // Load Products
+        function loadProducts() {
+            const tbody = document.getElementById('products-table');
+            tbody.innerHTML = '';
+            
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><i class="${product.icon}" style="font-size: 24px; color: #ff6600;"></i></td>
+                    <td>${product.name}</td>
+                    <td>${product.description}</td>
+                    <td>${product.price}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="editProduct(${product.id})" style="margin: 2px;">تعديل</button>
+                        <button class="btn btn-danger" onclick="deleteProduct(${product.id})" style="margin: 2px;">حذف</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Update total products count
+            document.getElementById('total-products').textContent = products.length;
+        }
+
+        // Load Orders
+        function loadOrders() {
+            const tbody = document.getElementById('orders-table');
+            tbody.innerHTML = '';
+            
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                const statusBadge = order.status === 'completed' ? 'success' : 
+                                   order.status === 'processing' ? 'warning' : 'info';
+                const statusText = order.status === 'completed' ? 'مكتملة' : 
+                                  order.status === 'processing' ? 'قيد المعالجة' : 'في الانتظار';
+                
+                row.innerHTML = `
+                    <td>#${order.id}</td>
+                    <td>${order.customer}</td>
+                    <td>${order.product}</td>
+                    <td>${order.amount}</td>
+                    <td><span class="badge badge-${statusBadge}">${statusText}</span></td>
+                    <td>${order.date}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="viewOrder(${order.id})" style="margin: 2px;">عرض</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Update totals
+            document.getElementById('total-orders').textContent = orders.length;
+            const totalRevenue = orders.reduce((sum, order) => sum + order.amount, 0);
+            document.getElementById('total-revenue').textContent = ' + totalRevenue.toLocaleString();
+        }
+
+        // Load Users
+        function loadUsers() {
+            const tbody = document.getElementById('users-table');
+            tbody.innerHTML = '';
+            
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.joined}</td>
+                    <td>${user.totalOrders}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="viewUser(${user.id})" style="margin: 2px;">عرض</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            document.getElementById('total-users').textContent = users.length.toLocaleString();
+        }
+
+        // Modal Functions
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Icon Selection
+        function selectIcon(iconClass, element) {
+            document.querySelectorAll('.icon-option').forEach(icon => {
+                icon.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            document.getElementById('product-icon').value = iconClass;
+        }
+
+        // Add Product
+        function addProduct() {
+            showModal('addProductModal');
+        }
+
+        // Product form submission
+        document.getElementById('addProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newProduct = {
+                id: products.length + 1,
+                name: document.getElementById('product-name').value,
+                icon: document.getElementById('product-icon').value,
+                description: document.getElementById('product-description').value,
+                price: parseInt(document.getElementById('product-price').value)
+            };
+            
+            products.push(newProduct);
+            loadProducts();
+            hideModal('addProductModal');
+            showAlert('تم إضافة المنتج بنجاح!', 'success');
+            
+            // Reset form
+            document.getElementById('addProductForm').reset();
+            document.getElementById('product-icon').value = 'fab fa-facebook';
+            document.querySelectorAll('.icon-option').forEach(icon => {
+                icon.classList.remove('selected');
+            });
+            document.querySelector('.icon-option').classList.add('selected');
+        });
+
+        // Edit/Delete Functions
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (product) {
+                document.getElementById('product-name').value = product.name;
+                document.getElementById('product-icon').value = product.icon;
+                document.getElementById('product-description').value = product.description;
+                document.getElementById('product-price').value = product.price;
+                showModal('addProductModal');
+            }
+        }
+
+        function deleteProduct(id) {
+            if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+                products = products.filter(p => p.id !== id);
+                loadProducts();
+                showAlert('تم حذف المنتج بنجاح!', 'success');
+            }
+        }
+
+        function viewOrder(id) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                alert(`تفاصيل الطلبية #${order.id}\n\nالعميل: ${order.customer}\nالمنتج: ${order.product}\nالمبلغ: ${order.amount}\nالحالة: ${order.status}`);
+            }
+        }
+
+        function viewUser(id) {
+            const user = users.find(u => u.id === id);
+            if (user) {
+                alert(`تفاصيل المستخدم\n\nالاسم: ${user.name}\nالبريد: ${user.email}\nتاريخ التسجيل: ${user.joined}\nإجمالي الطلبيات: ${user.totalOrders}`);
+            }
+        }
+
+        // Generate Website Function
+        function generateWebsite() {
+            const websiteHTML = createWebsiteHTML();
+            
+            // Show preview
+            showModal('previewModal');
+            const iframe = document.getElementById('preview-frame');
+            iframe.srcdoc = websiteHTML;
+            
+            showAlert('تم إنشاء الموقع بنجاح! يمكنك معاينته والآن.', 'success');
+        }
+
+        // Create Complete Website HTML
+        function createWebsiteHTML() {
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${websiteSettings.siteName}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: ${websiteSettings.backgroundColor}; color: #fff; }
+        .header { background: ${websiteSettings.backgroundColor}; padding: 10px 0; border-bottom: 2px solid ${websiteSettings.primaryColor}; }
+        .header-top { background: ${websiteSettings.primaryColor}; padding: 5px 0; text-align: center; font-weight: bold; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 15px 20px; }
+        .logo { font-size: 24px; font-weight: bold; color: ${websiteSettings.primaryColor}; }
+        .nav-links { display: flex; list-style: none; gap: 30px; }
+        .nav-links a { color: #fff; text-decoration: none; font-weight: 500; }
+        .nav-links a:hover { color: ${websiteSettings.primaryColor}; }
+        .hero { background: linear-gradient(135deg, ${websiteSettings.backgroundColor} 0%, #1a1a1a 100%); padding: 80px 20px; text-align: center; }
+        .hero h1 { font-size: 48px; margin-bottom: 20px; background: linear-gradient(45deg, ${websiteSettings.primaryColor}, ${websiteSettings.secondaryColor}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero h2 { font-size: 24px; margin-bottom: 30px; color: #ccc; }
+        .hero p { font-size: 16px; margin-bottom: 40px; color: #999; }
+        .cta-button { background: linear-gradient(45deg, ${websiteSettings.primaryColor}, ${websiteSettings.secondaryColor}); border: none; padding: 15px 30px; border-radius: 25px; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        .guarantee { display: inline-block; margin: 30px 0; padding: 20px; border: 3px solid ${websiteSettings.primaryColor}; border-radius: 15px; background: rgba(255, 102, 0, 0.1); }
+        .products-section { padding: 80px 20px; background: #111; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .section-title { text-align: center; font-size: 36px; margin-bottom: 50px; color: ${websiteSettings.primaryColor}; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+        .product-card { background: #1a1a1a; border: 2px solid #333; border-radius: 15px; padding: 20px; text-align: center; transition: all 0.3s; cursor: pointer; }
+        .product-card:hover { transform: translateY(-5px); border-color: ${websiteSettings.primaryColor}; }
+        .product-icon { width: 60px; height: 60px; margin: 0 auto 15px; background: ${websiteSettings.primaryColor}; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; }
+        .product-price { color: ${websiteSettings.primaryColor}; font-size: 20px; font-weight: bold; margin-top: 10px; }
+        .buy-btn { background: linear-gradient(45deg, #28a745, #20c997); color: #fff; padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .contact-section { padding: 60px 20px; background: ${websiteSettings.backgroundColor}; text-align: center; }
+        .contact-buttons { display: flex; gap: 15px; justify-content: center; }
+        .contact-btn { background: ${websiteSettings.primaryColor}; color: #fff; padding: 12px 25px; border: none; border-radius: 25px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .footer { background: ${websiteSettings.backgroundColor}; border-top: 1px solid #333; padding: 40px 20px; text-align: center; }
+        .footer p { color: #ccc; }
+        @media (max-width: 768px) { .nav-links { display: none; } .hero h1 { font-size: 32px; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-top">BLACK FRIDAY SALE - Special Offers Available!</div>
+        <nav class="navbar">
+            <div class="logo">${websiteSettings.siteLogo}</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero" id="home">
+        <h1>${websiteSettings.heroTitle}</h1>
+        <h2>${websiteSettings.heroSubtitle}</h2>
+        <p>${websiteSettings.heroDescription}</p>
+        <a href="#services" class="cta-button">${websiteSettings.heroButtonText}</a>
+        <div class="guarantee">
+            <i class="fas fa-shield-alt" style="color: ${websiteSettings.primaryColor}; margin-right: 10px;"></i>
+            <strong>${websiteSettings.guaranteeText}</strong>
+        </div>
+    </section>
+
+    <section class="products-section" id="services">
+        <div class="container">
+            <h2 class="section-title">Our Premium Services</h2>
+            <div class="products-grid">
+                ${products.map(product => `
+                    <div class="product-card">
+                        <div class="product-icon">
+                            <i class="${product.icon}"></i>
+                        </div>
+                        <h3>${product.name}</h3>
+                        <p>${product.description}</p>
+                        <div class="product-price">${product.price}</div>
+                        <button class="buy-btn" onclick="orderProduct('${product.name}', ${product.price})">Buy Now</button>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <h3 style="color: ${websiteSettings.primaryColor}; font-size: 28px; margin-bottom: 20px;">Contact Our Support Team</h3>
+            <div class="contact-buttons">
+                <a href="${websiteSettings.telegramLink}" class="contact-btn">
+                    <i class="fab fa-telegram"></i> Telegram
+                </a>
+                <a href="https://wa.me/${websiteSettings.whatsappLink}" class="contact-btn">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+            </div>
+            <p style="margin-top: 20px;">Email: ${websiteSettings.siteEmail}</p>
+            <p>Phone: ${websiteSettings.sitePhone}</p>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 ${websiteSettings.siteName} - All rights reserved</p>
+            <p>Trusted provider of premium advertising accounts and digital services</p>
+        </div>
+    </footer>
+
+    <script>
+        function orderProduct(productName, price) {
+            alert('تم إضافة ' + productName + ' إلى السلة!\\nالسعر:  + price + '\\n\\nسيتم التواصل معك عبر التلجرام أو الواتساب لإتمام الطلب.');
+        }
+        
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>`;
+        }
+
+        // Download Website
+        function downloadWebsite() {
+            const websiteHTML = createWebsiteHTML();
+            const blob = new Blob([websiteHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'backupi-website.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showAlert('تم تحميل الموقع بنجاح! يمكنك رفعه على أي استضافة.', 'success');
+        }
+
+        // Copy Website Code
+        function copyWebsiteCode() {
+            const websiteHTML = createWebsiteHTML();
+            navigator.clipboard.writeText(websiteHTML).then(() => {
+                showAlert('تم نسخ كود الموقع! يمكنك لصقه في ملف HTML.', 'success');
+            });
+        }
+
+        // Preview Website
+        function previewWebsite() {
+            generateWebsite();
+        }
+
+        // Save All Settings
+        function saveAllSettings() {
+            // Simulate saving to server
+            showAlert('تم حفظ جميع الإعدادات بنجاح!', 'success');
+        }
+
+        // Show Alert
+        function showAlert(message, type = 'success') {
+            const alertsContainer = document.getElementById('alerts-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.style.display = 'block';
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                ${message}
+                <button style="float: left; background: none; border: none; color: inherit; font-size: 18px; cursor: pointer;" onclick="this.parentElement.remove()">&times;</button>
+            `;
+            alertsContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentElement) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Color picker events
+        document.getElementById('primary-color').addEventListener('change', function(e) {
+            this.nextElementSibling.value = e.target.value;
+            updateSetting('primaryColor', e.target.value);
+        });
+
+        document.getElementById('secondary-color').addEventListener('change', function(e) {
+            this.nextElementSibling.value = e.target.value;
+            updateSetting('secondaryColor', e.target.value);
+        });
+
+        document.getElementById('background-color').addEventListener('change', function(e) {
+            this.nextElementSibling.value = e.target.value;
+            updateSetting('backgroundColor', e.target.value);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+            loadOrders();
+            loadUsers();
+            
+            // Load saved settings into forms
+            Object.keys(websiteSettings).forEach(key => {
+                const element = document.getElementById(key.replace(/([A-Z])/g, '-$1').toLowerCase());
+                if (element) {
+                    element.value = websiteSettings[key];
+                }
+            });
+            
+            showAlert('مرحباً بك في لوحة تحكم Backupi.ma المتطورة! 🔥', 'success');
+        });
+
+        console.log('🚀 Backupi Admin Panel v2.0 - Working Edition loaded successfully!');
+    </script>
+</body>
+</html>

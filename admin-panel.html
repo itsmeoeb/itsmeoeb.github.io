@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backupi.ma Admin Panel - Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #000 0%, #1a1a1a 100%);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            border-right: 3px solid #ff6600;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+            background: linear-gradient(135deg, #ff6600 0%, #ffaa00 100%);
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 25px;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            margin: 2px 0;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: rgba(255, 102, 0, 0.15);
+            border-left-color: #ff6600;
+            transform: translateX(8px);
+            color: #ff6600;
+        }
+
+        .menu-item i {
+            margin-right: 15px;
+            font-size: 18px;
+            width: 25px;
+            text-align: center;
+        }
+
+        .submenu {
+            padding-left: 20px;
+            display: none;
+        }
+
+        .submenu.active {
+            display: block;
+        }
+
+        .submenu-item {
+            padding: 12px 25px;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .submenu-item:hover {
+            color: #ff6600;
+            background: rgba(255, 102, 0, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 20px;
+            background: #1a1a1a;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #ff6600;
+            font-size: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6600, #ffaa00);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 102, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #444;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: linear-gradient(145deg, #1a1a1a, #222);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #ff6600;
+            box-shadow: 0 10px 25px rgba(255, 102, 0, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #ff6600, #ffaa00);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ff6600;
+            margin-bottom: 5px;
+        }
+
+        .card-label {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: linear-gradient(145deg, #1a1a1a, #222);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .section-title {
+            color: #ff6600;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .admin-table th {
+            background: #333;
+            color: #ff6600;
+            font-weight: 600;
+        }
+
+        .admin-table tr:hover {
+            background: rgba(255, 102, 0, 0.05);
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .status-completed {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .status-cancelled {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ff6600;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #000;
+            color: #fff;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #ff6600;
+        }
+
+        .form-control textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #333;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            color: #ff6600;
+            border-bottom-color: #ff6600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a1a, #222);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            border: 2px solid #ff6600;
+            position: relative;
+        }
+
+        .close {
+            color: #ccc;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        .close:hover {
+            color: #ff6600;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #333;
+            border-radius: 50%;
+            border-top-color: #ff6600;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🔥 Backupi.ma</h2>
+                <p>Admin Panel</p>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-item active" onclick="showSection('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </div>
+                
+                <div class="menu-item" onclick="toggleSubmenu('content')">
+                    <i class="fas fa-file-alt"></i>
+                    Content Management
+                    <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+                </div>
+                <div class="submenu" id="content-submenu">
+                    <div class="submenu-item" onclick="showSection('pages')">Pages</div>
+                    <div class="submenu-item" onclick="showSection('hero')">Hero Section</div>
+                    <div class="submenu-item" onclick="showSection('products')">Products</div>
+                    <div class="submenu-item" onclick="showSection('services')">Services</div>
+                </div>
+                
+                <div class="menu-item" onclick="toggleSubmenu('orders')">
+                    <i class="fas fa-shopping-cart"></i>
+                    Orders & Sales
+                    <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+                </div>
+                <div class="submenu" id="orders-submenu">
+                    <div class="submenu-item" onclick="showSection('orders')">All Orders</div>
+                    <div class="submenu-item" onclick="showSection('pending')">Pending Orders</div>
+                    <div class="submenu-item" onclick="showSection('completed')">Completed Orders</div>
+                </div>
+                
+                <div class="menu-item" onclick="showSection('customers')">
+                    <i class="fas fa-users"></i>
+                    Customers
+                </div>
+                
+                <div class="menu-item" onclick="showSection('analytics')">
+                    <i class="fas fa-chart-line"></i>
+                    Analytics
+                </div>
+                
+                <div class="menu-item" onclick="showSection('settings')">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </div>
+                
+                <div class="menu-item" onclick="showSection('tools')">
+                    <i class="fas fa-tools"></i>
+                    Tools
+                </div>
+                
+                <div class="menu-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="content-section active">
+                <div class="header">
+                    <h1>Dashboard Overview</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportData()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">1,247</div>
+                        <div class="card-label">Total Orders</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">$45,230</div>
+                        <div class="card-label">Total Revenue</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">892</div>
+                        <div class="card-label">Total Customers</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">12.5K</div>
+                        <div class="card-label">Page Views</div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Recent Orders</h3>
+                        <button class="btn btn-primary" onclick="showSection('orders')">View All</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Product</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#ORD-001</td>
+                                    <td>John Doe</td>
+                                    <td>Facebook Ads Account</td>
+                                    <td>$50</td>
+                                    <td><span class="status-badge status-completed">Completed</span></td>
+                                    <td>2024-01-15</td>
+                                    <td>
+                                        <button class="btn btn-secondary" onclick="viewOrder('ORD-001')">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-002</td>
+                                    <td>Jane Smith</td>
+                                    <td>TikTok Ads Account</td>
+                                    <td>$60</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>2024-01-14</td>
+                                    <td>
+                                        <button class="btn btn-secondary" onclick="viewOrder('ORD-002')">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-003</td>
+                                    <td>Mike Johnson</td>
+                                    <td>Google Ads Account</td>
+                                    <td>$75</td>
+                                    <td><span class="status-badge status-completed">Completed</span></td>
+                                    <td>2024-01-13</td>
+                                    <td>
+                                        <button class="btn btn-secondary" onclick="viewOrder('ORD-003')">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pages Management -->
+            <div id="pages" class="content-section">
+                <div class="header">
+                    <h1>Pages Management</h1>
+                    <button class="btn btn-primary" onclick="openModal('pageModal')">
+                        <i class="fas fa-plus"></i> Add New Page
+                    </button>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('homepage')">Homepage</button>
+                    <button class="tab" onclick="showTab('about')">About</button>
+                    <button class="tab" onclick="showTab('contact')">Contact</button>
+                    <button class="tab" onclick="showTab('privacy')">Privacy Policy</button>
+                </div>
+
+                <div id="homepage" class="tab-content active">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Page Title</label>
+                            <input type="text" class="form-control" value="Buy Facebook Ads Accounts, Google, TikTok, Snapchat & Canva Pro | Backupi.ma">
+                        </div>
+                        <div class="form-group">
+                            <label>Meta Description</label>
+                            <textarea class="form-control">Buy Facebook Ads Accounts, Google Ads, TikTok Ads, Snapchat Ads & Canva Pro. Trusted ad accounts for your marketing campaigns. 100% Money Back Guarantee.</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Hero Title</label>
+                            <input type="text" class="form-control" value="Buy Facebook Ads Accounts, Google, TikTok, Snapchat & Canva Pro">
+                        </div>
+                        <div class="form-group">
+                            <label>Hero Subtitle</label>
+                            <input type="text" class="form-control" value="Premium Ad Accounts for Your Marketing Success">
+                        </div>
+                        <div class="form-group">
+                            <label>Hero Description</label>
+                            <textarea class="form-control">Get reliable, high-quality advertising accounts for Facebook, Google, TikTok, Snapchat and Canva Pro. Trusted solutions to manage your ad campaigns and design needs effectively. Start scaling your business today!</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>CTA Button Text</label>
+                            <input type="text" class="form-control" value="🔥 Browse Our Services">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="savePage('homepage')">Save Changes</button>
+                </div>
+            </div>
+
+            <!-- Products Management -->
+            <div id="products" class="content-section">
+                <div class="header">
+                    <h1>Products Management</h1>
+                    <button class="btn btn-primary" onclick="openModal('productModal')">
+                        <i class="fas fa-plus"></i> Add New Product
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Stock</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Facebook Ads Account</td>
+                                <td>Ad Accounts</td>
+                                <td>$50</td>
+                                <td><span class="status-badge status-completed">Active</span></td>
+                                <td>Unlimited</td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="editProduct(1)">Edit</button>
+                                    <button class="btn btn-secondary" onclick="deleteProduct(1)">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>TikTok Ads Account</td>
+                                <td>Ad Accounts</td>
+                                <td>$60</td>
+                                <td><span class="status-badge status-completed">Active</span></td>
+                                <td>Unlimited</td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="editProduct(2)">Edit</button>
+                                    <button class="btn btn-secondary" onclick="deleteProduct(2)">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Google Ads Account</td>
+                                <td>Ad Accounts</td>
+                                <td>$75</td>
+                                <td><span class="status-badge status-completed">Active</span></td>
+                                <td>Unlimited</td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="editProduct(3)">Edit</button>
+                                    <button class="btn btn-secondary" onclick="deleteProduct(3)">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Orders Management -->
+            <div id="orders" class="content-section">
+                <div class="header">
+                    <h1>Orders Management</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="exportOrders()">
+                            <i class="fas fa-download"></i> Export Orders
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer Name</th>
+                                <th>Email</th>
+                                <th>Telegram</th>
+                                <th>Product</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#ORD-001</td>
+                                <td>John Doe</td>
+                                <td>john@example.com</td>
+                                <td>@johndoe</td>
+                                <td>Facebook Ads Account</td>
+                                <td>$50</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td>2024-01-15 14:30</td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="viewOrder('ORD-001')">View</button>
+                                    <button class="btn btn-primary" onclick="updateOrderStatus('ORD-001')">Update</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-002</td>
+                                <td>Jane Smith</td>
+                                <td>jane@example.com</td>
+                                <td>@janesmith</td>
+                                <td>TikTok Ads Account</td>
+                                <td>$60</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td>2024-01-14 16:45</td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="viewOrder('ORD-002')">View</button>
+                                    <button class="btn btn-primary" onclick="updateOrderStatus('ORD-002')">Update</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div id="settings" class="content-section">
+                <div class="header">
+                    <h1>Site Settings</h1>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('general')">General</button>
+                    <button class="tab" onclick="showTab('email')">Email</button>
+                    <button class="tab" onclick="showTab('payment')">Payment</button>
+                    <button class="tab" onclick="showTab('social')">Social Media</button>
+                </div>
+
+                <div id="general" class="tab-content active">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Site Name</label>
+                            <input type="text" class="form-control" value="Backupi.ma">
+                        </div>
+                        <div class="form-group">
+                            <label>Site URL</label>
+                            <input type="url" class="form-control" value="https://backupi.ma">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Email</label>
+                            <input type="email" class="form-control" value="support@backupi.ma">
+                        </div>
+                        <div class="form-group">
+                            <label>Telegram Username</label>
+                            <input type="text" class="form-control" value="@ProAdsFB">
+                        </div>
+                        <div class="form-group">
+                            <label>WhatsApp Number</label>
+                            <input type="text" class="form-control" value="+212XXXXXXXXX">
+                        </div>
+                        <div class="form-group">
+                            <label>Timezone</label>
+                            <select class="form-control">
+                                <option>UTC+0</option>
+                                <option>UTC+1</option>
+                                <option>UTC+2</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+
+            <!-- Tools -->
+            <div id="tools" class="content-section">
+                <div class="header">
+                    <h1>Admin Tools</h1>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card" onclick="openTool('backup')">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">Backup</div>
+                        <div class="card-label">Create site backup</div>
+                    </div>
+                    
+                    <div class="card" onclick="openTool('cache')">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-broom"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">Clear Cache</div>
+                        <div class="card-label">Clear all caches</div>
+                    </div>
+                    
+                    <div class="card" onclick="openTool('logs')">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">View Logs</div>
+                        <div class="card-label">System logs</div>
+                    </div>
+                    
+                    <div class="card" onclick="openTool('maintenance')">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">Maintenance</div>
+                        <div class="card-label">Site maintenance mode</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('productModal')">&times;</span>
+            <h2 style="color: #ff6600; margin-bottom: 30px;">Add New Product</h2>
+            <form id="productForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select class="form-control" required>
+                            <option>Ad Accounts</option>
+                            <option>Digital Services</option>
+                            <option>Tools</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Price ($)</label>
+                        <input type="number" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select class="form-control" required>
+                            <option>Active</option>
+                            <option>Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Icon Class</label>
+                        <input type="text" class="form-control" placeholder="fab fa-facebook">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Product</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('orderModal')">&times;</span>
+            <h2 style="color: #ff6600; margin-bottom: 30px;">Order Details</h2>
+            <div id="orderDetails">
+                <!-- Order details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation Functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update menu active state
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate the corresponding menu item
+            const menuItem = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (menuItem) {
+                menuItem.classList.add('active');
+            }
+        }
+
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId + '-submenu');
+            submenu.classList.toggle('active');
+        }
+
+        function showTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Product Functions
+        function editProduct(productId) {
+            openModal('productModal');
+            // Load product data here
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                // Delete product logic here
+                alert('Product deleted successfully!');
+            }
+        }
+
+        // Order Functions
+        function viewOrder(orderId) {
+            openModal('orderModal');
+            // Load order details here
+            document.getElementById('orderDetails').innerHTML = `
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Order ID</label>
+                        <input type="text" class="form-control" value="${orderId}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Customer Name</label>
+                        <input type="text" class="form-control" value="John Doe" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" value="john@example.com" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Telegram</label>
+                        <input type="text" class="form-control" value="@johndoe" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Product</label>
+                        <input type="text" class="form-control" value="Facebook Ads Account" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="text" class="form-control" value="$50" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select class="form-control">
+                            <option>Pending</option>
+                            <option selected>Completed</option>
+                            <option>Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea class="form-control" rows="4">Order processed successfully. Account details sent to customer.</textarea>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="updateOrder()">Update Order</button>
+            `;
+        }
+
+        function updateOrderStatus(orderId) {
+            // Update order status logic here
+            alert('Order status updated successfully!');
+        }
+
+        // Settings Functions
+        function saveSettings() {
+            // Save settings logic here
+            alert('Settings saved successfully!');
+        }
+
+        function savePage(pageId) {
+            // Save page content logic here
+            alert('Page content saved successfully!');
+        }
+
+        // Tool Functions
+        function openTool(tool) {
+            switch(tool) {
+                case 'backup':
+                    if (confirm('Create a backup of the site?')) {
+                        alert('Backup created successfully!');
+                    }
+                    break;
+                case 'cache':
+                    if (confirm('Clear all caches?')) {
+                        alert('Cache cleared successfully!');
+                    }
+                    break;
+                case 'logs':
+                    alert('Opening system logs...');
+                    break;
+                case 'maintenance':
+                    const mode = confirm('Toggle maintenance mode?') ? 'enabled' : 'disabled';
+                    alert(`Maintenance mode ${mode}!`);
+                    break;
+            }
+        }
+
+        // Data Functions
+        function refreshData() {
+            // Refresh dashboard data
+            alert('Data refreshed successfully!');
+        }
+
+        function exportData() {
+            // Export data logic here
+            alert('Data exported successfully!');
+        }
+
+        function exportOrders() {
+            // Export orders logic here
+            alert('Orders exported successfully!');
+        }
+
+        // Form Submissions
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Product added successfully!');
+            closeModal('productModal');
+        });
+
+        function updateOrder() {
+            alert('Order updated successfully!');
+            closeModal('orderModal');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                // Logout logic here
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add fade-in animation to cards
+            document.querySelectorAll('.card').forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('fade-in');
+            });
+        });
+    </script>
+</body>
+</html>
